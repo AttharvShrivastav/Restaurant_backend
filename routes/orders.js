@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
       [
         null,                    // customer_id
         table_number,            // table_id
-        1,                       // restaurant_id (hardcoded for now)
+        restaurantId,                       // restaurant_id (hardcoded for now)
         total,                   // total_amount
         0.00,                    // discount
         0.00,                    // tax
@@ -60,43 +60,43 @@ router.post('/', async (req, res) => {
 
 module.exports = router;
 
-// GET /api/orders — fetch active orders
-router.get('/', async (req, res) => {
-  try {
-    const [rows] = await db.query(`
-      SELECT o.id, o.table_id, o.total_amount AS total, GROUP_CONCAT(CONCAT(m.name, ':', oi.quantity)) AS items
-      FROM orders o
-      JOIN order_items oi ON o.id = oi.order_id
-      JOIN menu_items m ON m.id = oi.menu_item_id
-      WHERE o.order_status = 'pending'
-      GROUP BY o.id
-    `);
+// // GET /api/orders — fetch active orders
+// router.get('/', async (req, res) => {
+//   try {
+//     const [rows] = await db.query(`
+//       SELECT o.id, o.table_id, o.total_amount AS total, GROUP_CONCAT(CONCAT(m.name, ':', oi.quantity)) AS items
+//       FROM orders o
+//       JOIN order_items oi ON o.id = oi.order_id
+//       JOIN menu_items m ON m.id = oi.menu_item_id
+//       WHERE o.order_status = 'pending'
+//       GROUP BY o.id
+//     `);
 
-    const formatted = rows.map(row => ({
-      id: row.id,
-      table_id: row.table_id,
-      total: row.total,
-      items: row.items.split(',').map(entry => {
-        const [name, qty] = entry.split(':');
-        return { name, qty };
-      })
-    }));
+//     const formatted = rows.map(row => ({
+//       id: row.id,
+//       table_id: row.table_id,
+//       total: row.total,
+//       items: row.items.split(',').map(entry => {
+//         const [name, qty] = entry.split(':');
+//         return { name, qty };
+//       })
+//     }));
 
-    res.json(formatted);
-  } catch (err) {
-    console.error('Failed to fetch orders:', err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
+//     res.json(formatted);
+//   } catch (err) {
+//     console.error('Failed to fetch orders:', err);
+//     res.status(500).json({ error: 'Failed to fetch orders' });
+//   }
+// });
 
-// PATCH /api/orders/:id — mark an order as completed
-router.patch('/:id', async (req, res) => {
-  const { status } = req.body;
-  try {
-    await db.query('UPDATE orders SET order_status = ? WHERE id = ?', [status || 'completed', req.params.id]);
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Failed to update order status:', err);
-    res.status(500).json({ error: 'Failed to update order status' });
-  }
-});
+// // PATCH /api/orders/:id — mark an order as completed
+// router.patch('/:id', async (req, res) => {
+//   const { status } = req.body;
+//   try {
+//     await db.query('UPDATE orders SET order_status = ? WHERE id = ?', [status || 'completed', req.params.id]);
+//     res.json({ success: true });
+//   } catch (err) {
+//     console.error('Failed to update order status:', err);
+//     res.status(500).json({ error: 'Failed to update order status' });
+//   }
+// });

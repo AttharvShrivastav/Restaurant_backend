@@ -1,11 +1,20 @@
-// routes/category.js
 const express = require('express');
-const router = express.Router();
+// This is still required
+const router = express.Router({ mergeParams: true });
 const db = require('../db');
 
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT id, name FROM menu_categories');
+    const { restaurantId } = req.params;
+
+    const [rows] = await db.query(
+      `SELECT DISTINCT mc.id, mc.name
+       FROM menu_categories mc
+       JOIN menu_items mi ON mc.id = mi.category_id
+       WHERE mi.restaurant_id = ?`,
+      [restaurantId]
+    );
+
     res.json(rows);
   } catch (err) {
     console.error('Error loading categories:', err);
