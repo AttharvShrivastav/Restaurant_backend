@@ -1,10 +1,11 @@
 const express = require('express');
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const db = require('../db');
 
 // POST /api/orders
 router.post('/', async (req, res) => {
   const { table_number, items, total } = req.body;
+  const { restaurantId } = req.params;
 
   console.log(req.body)
 
